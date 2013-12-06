@@ -11,6 +11,8 @@
   
   This will probably work for any string of NeoPixels from Adafruit as well.
   
+  Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
+  
   created 4 Dec 2014
   by Tom Igoe
 
@@ -44,8 +46,7 @@ void loop() {
     }
   }
   
-  long color = strip.Color(red, green, blue);  // set the color
-  strip.setPixelColor(pixel, color);           // send it to the strip for this pixel
+  strip.setPixelColor(pixel, red, green, blue);// set the color for this pixel
   strip.show();                                // refresh the strip
 }
 
