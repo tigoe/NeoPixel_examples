@@ -5,9 +5,13 @@
   and fades the pixels randomly between them to create a "candle flicker" effect.
   The twinkle feature has been removed to get the flicker working.
 
+  In this version, the pixels slowly fade down to a low reddish orange
+  over several hours. There's an additional set of colors, the reference colors,
+  which is the color range at which the pixels started on reset.
+
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
-  created 5 Dec 2014
+  created 6 Dec 2014
   by Tom Igoe
 
 */
@@ -21,14 +25,20 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, PIN, NEO_RGB + NEO_KHZ800
 unsigned long targetColor[numPixels];    // next target for each pixel
 unsigned long pixelColor[numPixels];     // current color for each pixel
 
-// range of keyframe colors for the pixels to fade to:
-unsigned long keyColors[] = {0xEB5D19, 0xA4470C, 0x85210C, 0x751E15};
+// range of keyframe colors for the pixels to flicker to:
+unsigned long keyColors[] = {0xCB500F, 0xB4410C, 0x95230C, 0x853E0B};
+// initial reference color range:
+unsigned long referenceColors[] = {0xCB5D0F, 0xB4470C, 0x95310C, 0x854E0B};
+
 // count of keyframe colors:
 int numColors = sizeof(keyColors) / 4;
+unsigned long fiveMinutes =  300000;   // five minutes, in millis
+unsigned long lastFade = 0;
 
 void setup() {
   Serial.begin(9600);     // initialize serial communication
   Serial.setTimeout(10);  // set serial timeout
+  Serial.println("Starting");
   strip.begin();          // initialize pixel strip
   resetStrip();           // reset the strip
 }
@@ -37,19 +47,35 @@ void loop() {
   // read serial input:
   while (Serial.available() > 0) {
     int input = Serial.read();
-/*
-    if (input == 'x' || input == 'X') {    // x signals that you should twinkle a pixel
-      int thisPixel = random(numPixels);   // pick a random pixel
-      pixelColor[thisPixel] = 0xFFFFFF;    // set its color to white
-      change[thisPixel] = 1;               // set its change value to true
-    }
-*/
+    /*
+        if (input == 'x' || input == 'X') {    // x signals that you should twinkle a pixel
+          int thisPixel = random(numPixels);   // pick a random pixel
+          pixelColor[thisPixel] = 0xFFFFFF;    // set its color to white
+          change[thisPixel] = 1;               // set its change value to true
+        }
+    */
     if (input == 'z') {                    // z signals you should reset the whole strip
       resetStrip();
     }
   }
 
-// iterate over all pixels:
+  // create the flicker effect:
+  if (millis() % 30 < 2) {
+    flickerPixels();
+  }
+
+  // gradually fade the keyframe colors lower and more toward the red:
+  if (millis() - lastFade >= fiveMinutes) {
+    Serial.println("Fading");
+    fadeToRed();
+  }
+}
+
+/*
+  this function creates the flicker effect:
+*/
+void flickerPixels() {
+  // iterate over all pixels:
   for (int thisPixel = 0; thisPixel < numPixels; thisPixel++) {
     // if the target color matches the current color for this pixel,
     // then pick a new target color randomly:
@@ -62,8 +88,33 @@ void loop() {
     // set the pixel color in the strip:
     strip.setPixelColor(thisPixel, pixelColor[thisPixel]);// set the color for this pixel
   }
-  // update the strip:
+  
+ // refresh the strip:
   strip.show();
+}
+
+/*
+  This function fades all the key colors toward a low reddish orange
+*/
+void fadeToRed() {
+  // iterate over all pixels:
+  for (int thisColor = 0; thisColor < numColors; thisColor++) {
+    // separate the  color:
+    byte r = keyColors[thisColor] >> 16;
+    byte g = keyColors[thisColor] >>  8;
+    byte b = keyColors[thisColor];
+
+    // the reddish-orange glow you're aiming for is 0x1F0F04
+    // fade the first color toward the second color:
+    if (r > 0x1F) r--;
+    if (g > 0x0F) g--;
+    if (b > 0x04) b--;
+
+    // combine the values to get the new color:
+    keyColors[thisColor] = ((unsigned long)r << 16) | ((unsigned long)g << 8) | b;
+    Serial.println(keyColors[thisColor], HEX);
+  }
+  lastFade = millis();
 }
 
 /*
