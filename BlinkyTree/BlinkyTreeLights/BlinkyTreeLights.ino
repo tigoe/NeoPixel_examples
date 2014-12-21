@@ -12,7 +12,7 @@
   * serial input changed to serial from linux on Yun (Serial1)
   * turn on and off using serial commands '1' and '0'
   * bug fix in reset command
-  
+
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
   created 4 Dec 2014
@@ -22,6 +22,9 @@
 
 #include <Adafruit_NeoPixel.h>
 #include <CapacitiveSensor.h>
+#include <Bridge.h>
+#include <Process.h>
+
 #define PIN 12  // the I/O pin that the neopixel data signal is on
 
 CapacitiveSensor bell = CapacitiveSensor(4, 2);   // initialize cap touch library
@@ -50,12 +53,21 @@ int numColors = sizeof(keyColors) / 4;
 unsigned long fiveMinutes =  30000;   // five minutes, in millis
 unsigned long lastFade = 0;
 
-boolean running = true;    // whether or not the lights are running
+boolean running = false;    // whether or not the lights are running
 
 void setup() {
+  // Bridge startup. By waiting for bridge before starting, 
+  // you ignore the boot process dmesg output from linux:
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
+  Bridge.begin();
+  digitalWrite(13, HIGH);  
+  
   Serial.begin(9600);     // initialize serial communication
   Serial1.begin(250000);  // initialize serial communication with linux
-  Serial.setTimeout(10);  // set serial timeout
+  Process p;
+  p.runShellCommandAsynchronously("/etc/init.d/S99belle start");
+
   Serial.println("Starting");
   bell.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate on channel 1 - just as an example
   strip.begin();          // initialize pixel strip
@@ -96,6 +108,7 @@ void loop() {
   long bellTouch =  bell.capacitiveSensor(30);
   // if the bell is touched and it wasn't touched
   // on the last check:
+  //  Serial.println(bellTouch);
   if (bellTouch > threshold && touchState == 0) {
     touchState = 1;
     twinkle();
