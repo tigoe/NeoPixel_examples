@@ -7,11 +7,13 @@
   * capacitive touch sensor to trigger the twinkle effect
   * an array to hold only the pixels visible from the front of the tree
   * twinkle lights are picked only from the visible pixel array
-
-  It adds:
   * serial input changed to serial from linux on Yun (Serial1)
-  * turn on and off using serial commands '1' and '0'
+  * turn on and off using serial commands '~1' and '~0'
   * bug fix in reset command
+  
+  It adds:
+  * twinkle effect on serial '*'
+  * minor code changes for stability
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
@@ -22,15 +24,13 @@
 
 #include <Adafruit_NeoPixel.h>
 #include <CapacitiveSensor.h>
-#include <Bridge.h>
-#include <Process.h>
 
 #define PIN 12  // the I/O pin that the neopixel data signal is on
 
-CapacitiveSensor bell = CapacitiveSensor(4, 2);   // initialize cap touch library
+CapacitiveSensor bell = CapacitiveSensor(10, 7);   // initialize cap touch library
 long touchTime = 0;                      // time of last touch
 int touchState = 0;                      // if the bell is being touched
-int threshold = 100;                      // touch sensitivity threshold
+int threshold = 1000;                    // touch sensitivity threshold
 int touchDelay = 500;                    // how long to delay before resetting touch sensor
 
 const int numPixels = 50;    // number of pixels in the strip
@@ -51,25 +51,15 @@ int visibleCount = sizeof(visiblePixels) / 2;
 // count of keyframe colors:
 int numColors = sizeof(keyColors) / 4;
 unsigned long fiveMinutes =  30000;   // five minutes, in millis
-unsigned long lastFade = 0;
+unsigned long lastFade = 0;           // timestamp of the last call to fadeToRed()
 
-boolean running = false;    // whether or not the lights are running
+boolean running = true;    // whether or not the lights are running
 
 void setup() {
-  // Bridge startup. By waiting for bridge before starting, 
-  // you ignore the boot process dmesg output from linux:
-  pinMode(13, OUTPUT);
-  digitalWrite(13, LOW);
-  Bridge.begin();
-  digitalWrite(13, HIGH);  
-  
-  Serial.begin(9600);     // initialize serial communication
   Serial1.begin(250000);  // initialize serial communication with linux
-  Process p;
-  p.runShellCommandAsynchronously("/etc/init.d/S99belle start");
+  Serial1.setTimeout(10);
 
-  Serial.println("Starting");
-  bell.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate on channel 1 - just as an example
+  bell.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off touch sensor autocalibrate
   strip.begin();          // initialize pixel strip
   resetStrip();           // reset the strip
 }
@@ -77,29 +67,30 @@ void setup() {
 void loop() {
   // read serial input:
   while (Serial1.available() > 0) {
-    int input = Serial1.read();
-    if (input == '0' ) {    // 0 signals shutdown
-      running = turnOff();
-    }
+    if (Serial1.find("~")) {    // looking for ~ first allows for filtering out the dmesg 
+      char input = Serial1.read();
+      if (input == '0' ) {    // 0 signals shutdown
+        running = turnOff();
+      }
 
-    if (input == '1') {
-      running = resetStrip();
-    }
+      if (input == '1') {
+        running = resetStrip();
+      }
 
-    if (input == 'x' || input == 'X') {    // x signals that you should twinkle a pixel
-      twinkle();
+      if (input == '*' ) {    // * signals that you should twinkle a pixel
+        twinkle();
+      }
     }
   }
 
   if (running) {
-    // create the flicker effect:
+    // create the flicker effect every 30ms:
     if (millis() % 30 < 2) {
       flickerPixels();
     }
 
     // gradually fade the keyframe colors lower and more toward the red:
     if (millis() - lastFade >= fiveMinutes) {
-      Serial.println("Fading");
       fadeToRed();
     }
   }
@@ -108,7 +99,6 @@ void loop() {
   long bellTouch =  bell.capacitiveSensor(30);
   // if the bell is touched and it wasn't touched
   // on the last check:
-  //  Serial.println(bellTouch);
   if (bellTouch > threshold && touchState == 0) {
     touchState = 1;
     twinkle();
@@ -128,6 +118,7 @@ void twinkle() {
   int whichPixel = random(visibleCount);
   int thisPixel = visiblePixels[whichPixel]; // pick a random pixel from the visible list
   pixelColor[thisPixel] = 0xFFDDDD;          // set its color to white
+  Serial1.println("ding");
 }
 
 /*
@@ -171,7 +162,6 @@ void fadeToRed() {
 
     // combine the values to get the new color:
     keyColors[thisColor] = ((unsigned long)r << 16) | ((unsigned long)g << 8) | b;
-    Serial.println(keyColors[thisColor], HEX);
   }
   lastFade = millis();
 }
