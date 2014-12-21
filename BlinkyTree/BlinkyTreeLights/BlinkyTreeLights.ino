@@ -1,18 +1,22 @@
 /*
   BlinkyTree
   This version maintains:
-  * candle flicker effect 
+  * candle flicker effect
   * the slow fade to reddish orange over several hours
   * twinkle effect
   * capacitive touch sensor to trigger the twinkle effect
-
-  It adds:
   * an array to hold only the pixels visible from the front of the tree
   * twinkle lights are picked only from the visible pixel array
 
+  It adds:
+  * serial input changed to serial from linux on Yun (Serial1)
+  * turn on and off using serial commands '1' and '0'
+  * bug fix in reset command
+  
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
-  created 16 Dec 2014
+  created 4 Dec 2014
+  updated 21 Dec 2014
   by Tom Igoe
 */
 
@@ -43,11 +47,14 @@ int visibleCount = sizeof(visiblePixels) / 2;
 
 // count of keyframe colors:
 int numColors = sizeof(keyColors) / 4;
-unsigned long fiveMinutes =  300000;   // five minutes, in millis
+unsigned long fiveMinutes =  30000;   // five minutes, in millis
 unsigned long lastFade = 0;
+
+boolean running = true;    // whether or not the lights are running
 
 void setup() {
   Serial.begin(9600);     // initialize serial communication
+  Serial1.begin(250000);  // initialize serial communication with linux
   Serial.setTimeout(10);  // set serial timeout
   Serial.println("Starting");
   bell.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate on channel 1 - just as an example
@@ -57,27 +64,32 @@ void setup() {
 
 void loop() {
   // read serial input:
-  while (Serial.available() > 0) {
-    int input = Serial.read();
+  while (Serial1.available() > 0) {
+    int input = Serial1.read();
+    if (input == '0' ) {    // 0 signals shutdown
+      running = turnOff();
+    }
+
+    if (input == '1') {
+      running = resetStrip();
+    }
+
     if (input == 'x' || input == 'X') {    // x signals that you should twinkle a pixel
-      int whichPixel = random(visibleCount);
-      int thisPixel = visiblePixels[whichPixel]; // pick a random pixel from the visible list
-      pixelColor[thisPixel] = 0xFFDDDD;          // set its color to white
-    }
-    if (input == 'z') {                    // z signals you should reset the whole strip
-      resetStrip();
+      twinkle();
     }
   }
 
-  // create the flicker effect:
-  if (millis() % 30 < 2) {
-    flickerPixels();
-  }
+  if (running) {
+    // create the flicker effect:
+    if (millis() % 30 < 2) {
+      flickerPixels();
+    }
 
-  // gradually fade the keyframe colors lower and more toward the red:
-  if (millis() - lastFade >= fiveMinutes) {
-    Serial.println("Fading");
-    fadeToRed();
+    // gradually fade the keyframe colors lower and more toward the red:
+    if (millis() - lastFade >= fiveMinutes) {
+      Serial.println("Fading");
+      fadeToRed();
+    }
   }
 
   // read touch sensor:
@@ -86,9 +98,7 @@ void loop() {
   // on the last check:
   if (bellTouch > threshold && touchState == 0) {
     touchState = 1;
-    int whichPixel = random(visibleCount);
-    int thisPixel = visiblePixels[whichPixel]; // pick a random pixel from the visible list
-    pixelColor[thisPixel] = 0xFFDDDD;          // set its color to white
+    twinkle();
     touchTime = millis();
   }
 
@@ -96,6 +106,15 @@ void loop() {
   if (millis() - touchTime > touchDelay) {
     touchState = 0;
   }
+}
+
+/*
+  this function creates the twinkle effect:
+*/
+void twinkle() {
+  int whichPixel = random(visibleCount);
+  int thisPixel = visiblePixels[whichPixel]; // pick a random pixel from the visible list
+  pixelColor[thisPixel] = 0xFFDDDD;          // set its color to white
 }
 
 /*
@@ -147,19 +166,38 @@ void fadeToRed() {
 /*
   This function resets all the pixels to their base colors:
 */
-void resetStrip() {
+boolean resetStrip() {
   // iterate over the pixels:
   for (int pixel = 0; pixel < numPixels; pixel++) {
     // pick two random colors from the keyframe colors:
     int nextColor = random(numColors);
     int lastColor = random(numColors);
-    targetColor[pixel] = keyColors[nextColor];
-    pixelColor[pixel] = keyColors[lastColor];
+    targetColor[pixel] = referenceColors[nextColor];
+    pixelColor[pixel] = referenceColors[lastColor];
     // set the pixel color:
     strip.setPixelColor(pixel, pixelColor[pixel]);// set the color for this pixel
   }
+
+  // reset the keyColor array with the reference color array:
+  for (int p = 0; p < numColors; p++) {
+    keyColors[p] = referenceColors[p];
+  }
+
   // update the strip:
   strip.show();
+  return true;
+}
+
+boolean turnOff() {
+  // iterate over the pixels:
+  for (int pixel = 0; pixel < numPixels; pixel++) {
+
+    // set the pixel color:
+    strip.setPixelColor(pixel, 0);// set the color for this pixel
+  }
+  // update the strip:
+  strip.show();
+  return false;
 }
 
 /*
