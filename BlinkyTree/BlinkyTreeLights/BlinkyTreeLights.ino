@@ -1,17 +1,25 @@
 /*
   BlinkyTree
-  This version maintains the candle flicker effect, and the slow fade to
-  reddish orange over several hours, and re-introduces the twinkle to white
-  effect.
+  This version maintains the candle flicker effect, the slow fade to
+  reddish orange over several hours, and the twinkle effect. It adds
+  a capacitive touch sensor to trigger the twinkle effect
+
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
-  created 14 Dec 2014
+  created 15 Dec 2014
   by Tom Igoe
 */
 
 #include <Adafruit_NeoPixel.h>
+#include <CapacitiveSensor.h>
 #define PIN 12  // the I/O pin that the neopixel data signal is on
+
+CapacitiveSensor bell = CapacitiveSensor(4, 2);   // initialize cap touch library
+long touchTime = 0;                      // time of last touch
+int touchState = 0;                      // if the bell is being touched
+int threshold = 100;                      // touch sensitivity threshold
+int touchDelay = 500;                    // how long to delay before resetting touch sensor
 
 const int numPixels = 50;    // number of pixels in the strip
 // initialize the strip:
@@ -34,6 +42,7 @@ void setup() {
   Serial.begin(9600);     // initialize serial communication
   Serial.setTimeout(10);  // set serial timeout
   Serial.println("Starting");
+  bell.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate on channel 1 - just as an example
   strip.begin();          // initialize pixel strip
   resetStrip();           // reset the strip
 }
@@ -60,6 +69,22 @@ void loop() {
   if (millis() - lastFade >= fiveMinutes) {
     Serial.println("Fading");
     fadeToRed();
+  }
+
+  // read touch sensor:
+  long bellTouch =  bell.capacitiveSensor(30);
+  // if the bell is touched and it wasn't touched
+  // on the last check:
+  if (bellTouch > threshold && touchState == 0) {
+    touchState = 1;
+    int thisPixel = random(numPixels);   // pick a random pixel
+    pixelColor[thisPixel] = 0xFFFFFF;    // set its color to white
+    touchTime = millis();
+  }
+
+  // if the touch delay has passed, reset touchState:
+  if (millis() - touchTime > touchDelay) {
+    touchState = 0;
   }
 }
 
