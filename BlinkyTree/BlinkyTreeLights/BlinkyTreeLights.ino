@@ -1,13 +1,18 @@
 /*
   BlinkyTree
-  This version maintains the candle flicker effect, the slow fade to
-  reddish orange over several hours, and the twinkle effect. It adds
-  a capacitive touch sensor to trigger the twinkle effect
+  This version maintains:
+  * candle flicker effect 
+  * the slow fade to reddish orange over several hours
+  * twinkle effect
+  * capacitive touch sensor to trigger the twinkle effect
 
+  It adds:
+  * an array to hold only the pixels visible from the front of the tree
+  * twinkle lights are picked only from the visible pixel array
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
-  created 15 Dec 2014
+  created 16 Dec 2014
   by Tom Igoe
 */
 
@@ -33,6 +38,9 @@ unsigned long keyColors[] = {0xCB500F, 0xB4410C, 0x95230C, 0x853E0B};
 // initial reference color range:
 unsigned long referenceColors[] = {0xCB5D0F, 0xB4470C, 0x95310C, 0x854E0B};
 
+int visiblePixels[] = {6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 40}; // pixels visible on the front of the tree
+int visibleCount = sizeof(visiblePixels) / 2;
+
 // count of keyframe colors:
 int numColors = sizeof(keyColors) / 4;
 unsigned long fiveMinutes =  300000;   // five minutes, in millis
@@ -52,8 +60,9 @@ void loop() {
   while (Serial.available() > 0) {
     int input = Serial.read();
     if (input == 'x' || input == 'X') {    // x signals that you should twinkle a pixel
-      int thisPixel = random(numPixels);   // pick a random pixel
-      pixelColor[thisPixel] = 0xFFFFFF;    // set its color to white
+      int whichPixel = random(visibleCount);
+      int thisPixel = visiblePixels[whichPixel]; // pick a random pixel from the visible list
+      pixelColor[thisPixel] = 0xFFDDDD;          // set its color to white
     }
     if (input == 'z') {                    // z signals you should reset the whole strip
       resetStrip();
@@ -77,8 +86,9 @@ void loop() {
   // on the last check:
   if (bellTouch > threshold && touchState == 0) {
     touchState = 1;
-    int thisPixel = random(numPixels);   // pick a random pixel
-    pixelColor[thisPixel] = 0xFFFFFF;    // set its color to white
+    int whichPixel = random(visibleCount);
+    int thisPixel = visiblePixels[whichPixel]; // pick a random pixel from the visible list
+    pixelColor[thisPixel] = 0xFFDDDD;          // set its color to white
     touchTime = millis();
   }
 
