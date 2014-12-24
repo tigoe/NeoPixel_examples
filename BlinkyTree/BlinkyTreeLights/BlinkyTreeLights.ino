@@ -10,20 +10,21 @@
   * serial input changed to serial from linux on Yun (Serial1)
   * turn on and off using serial commands '~1' and '~0'
   * bug fix in reset command
-  
+
   It adds:
-  * twinkle effect on serial '*'
-  * minor code changes for stability
+  * major code changes for stability
+  * fixed bug at end of cycle
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
   created 4 Dec 2014
-  updated 21 Dec 2014
+  updated 25 Dec 2014
   by Tom Igoe
 */
 
 #include <Adafruit_NeoPixel.h>
 #include <CapacitiveSensor.h>
+#include <Bridge.h>
 
 #define PIN 12  // the I/O pin that the neopixel data signal is on
 
@@ -50,14 +51,16 @@ int visibleCount = sizeof(visiblePixels) / 2;
 
 // count of keyframe colors:
 int numColors = sizeof(keyColors) / 4;
-unsigned long fiveMinutes =  30000;   // five minutes, in millis
+unsigned long slowFadeInterval =  169400;   // in millis, this makes an 8-hour fade
 unsigned long lastFade = 0;           // timestamp of the last call to fadeToRed()
 
 boolean running = true;    // whether or not the lights are running
+boolean finished = false;
 
 void setup() {
   Serial1.begin(250000);  // initialize serial communication with linux
   Serial1.setTimeout(10);
+  Console.begin();
 
   bell.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off touch sensor autocalibrate
   strip.begin();          // initialize pixel strip
@@ -67,7 +70,7 @@ void setup() {
 void loop() {
   // read serial input:
   while (Serial1.available() > 0) {
-    if (Serial1.find("~")) {    // looking for ~ first allows for filtering out the dmesg 
+    if (Serial1.find("~")) {    // looking for ~ first allows for filtering out the dmesg
       char input = Serial1.read();
       if (input == '0' ) {    // 0 signals shutdown
         running = turnOff();
@@ -75,10 +78,6 @@ void loop() {
 
       if (input == '1') {
         running = resetStrip();
-      }
-
-      if (input == '*' ) {    // * signals that you should twinkle a pixel
-        twinkle();
       }
     }
   }
@@ -90,10 +89,14 @@ void loop() {
     }
 
     // gradually fade the keyframe colors lower and more toward the red:
-    if (millis() - lastFade >= fiveMinutes) {
-      fadeToRed();
+    if (millis() - lastFade >= slowFadeInterval) {
+      finished = fadeToRed();
     }
   }
+
+  // if you reached the end of the long fade, turn off:
+  if (finished) running = turnOff();
+
 
   // read touch sensor:
   long bellTouch =  bell.capacitiveSensor(30);
@@ -129,7 +132,7 @@ void flickerPixels() {
   for (int thisPixel = 0; thisPixel < numPixels; thisPixel++) {
     // if the target color matches the current color for this pixel,
     // then pick a new target color randomly:
-    while (targetColor[thisPixel] == pixelColor[thisPixel]) {
+    if (targetColor[thisPixel] == pixelColor[thisPixel]) {
       int nextColor = random(numColors);
       targetColor[thisPixel] = keyColors[nextColor];
     }
@@ -146,7 +149,8 @@ void flickerPixels() {
 /*
   This function fades all the key colors toward a low reddish orange
 */
-void fadeToRed() {
+boolean fadeToRed() {
+  boolean result = true;
   // iterate over all pixels:
   for (int thisColor = 0; thisColor < numColors; thisColor++) {
     // separate the  color:
@@ -154,16 +158,22 @@ void fadeToRed() {
     byte g = keyColors[thisColor] >>  8;
     byte b = keyColors[thisColor];
 
-    // the reddish-orange glow you're aiming for is 0x1F0F04
+    // the reddish-orange glow you're aiming for is 0x1F0F02
     // fade the first color toward the second color:
     if (r > 0x1F) r--;
     if (g > 0x0F) g--;
-    if (b > 0x04) b--;
+    if (b > 0x02) b--;
 
     // combine the values to get the new color:
     keyColors[thisColor] = ((unsigned long)r << 16) | ((unsigned long)g << 8) | b;
+    // if all the keyColors == the final color then you're finished:
+    if (keyColors[thisColor] != 0x1F0F02) {
+      result = false;
+    }
   }
   lastFade = millis();
+
+  return result;
 }
 
 /*
@@ -197,9 +207,11 @@ boolean turnOff() {
 
     // set the pixel color:
     strip.setPixelColor(pixel, 0);// set the color for this pixel
+    strip.show();
+    delay(300);
   }
   // update the strip:
-  strip.show();
+
   return false;
 }
 
