@@ -12,8 +12,7 @@
   * bug fix in reset command
 
   It adds:
-  * major code changes for stability
-  * fixed bug at end of cycle
+  * mailbox support for web interface
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
@@ -25,6 +24,8 @@
 #include <Adafruit_NeoPixel.h>
 #include <CapacitiveSensor.h>
 #include <Bridge.h>
+#include <Console.h>
+#include <Mailbox.h>
 
 #define PIN 12  // the I/O pin that the neopixel data signal is on
 
@@ -58,8 +59,8 @@ boolean running = true;    // whether or not the lights are running
 boolean finished = false;
 
 void setup() {
-  Serial1.begin(250000);  // initialize serial communication with linux
-  Serial1.setTimeout(10);
+  Bridge.begin();
+  Mailbox.begin();
   Console.begin();
 
   bell.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off touch sensor autocalibrate
@@ -68,16 +69,27 @@ void setup() {
 }
 
 void loop() {
-  // read serial input:
-  while (Serial1.available() > 0) {
-    if (Serial1.find("~")) {    // looking for ~ first allows for filtering out the dmesg
-      char input = Serial1.read();
-      if (input == '0' ) {    // 0 signals shutdown
-        running = turnOff();
-      }
+  String message;
 
-      if (input == '1') {
-        running = resetStrip();
+  if (millis() % 500 < 3) {
+    if (Mailbox.messageAvailable())
+    {
+      // read all the messages present in the queue
+      while (Mailbox.messageAvailable())
+      {
+        Mailbox.readMessage(message);
+        Console.println(message);
+        if (message == "off" ) {
+          running = turnOff();
+        }
+
+        if (message == "on") {
+          running = resetStrip();
+        }
+        
+        if (message == "wings") {
+          twinkle();
+        }
       }
     }
   }
