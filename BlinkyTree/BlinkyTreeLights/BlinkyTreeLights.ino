@@ -7,17 +7,16 @@
   * capacitive touch sensor to trigger the twinkle effect
   * an array to hold only the pixels visible from the front of the tree
   * twinkle lights are picked only from the visible pixel array
-  * serial input changed to serial from linux on Yun (Serial1)
-  * turn on and off using serial commands '~1' and '~0'
-  * bug fix in reset command
-
-  It adds:
   * mailbox support for web interface
+  
+  It adds:
+  * mailbox support for fade time and fastForward
+  
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
   created 4 Dec 2014
-  updated 25 Dec 2014
+  updated 26 Dec 2014
   by Tom Igoe
 */
 
@@ -46,6 +45,7 @@ unsigned long pixelColor[numPixels];     // current color for each pixel
 unsigned long keyColors[] = {0xCB500F, 0xB4410C, 0x95230C, 0x853E0B};
 // initial reference color range:
 unsigned long referenceColors[] = {0xCB5D0F, 0xB4470C, 0x95310C, 0x854E0B};
+unsigned long finalColor = 0x1F0F02;
 
 int visiblePixels[] = {6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 40}; // pixels visible on the front of the tree
 int visibleCount = sizeof(visiblePixels) / 2;
@@ -86,9 +86,21 @@ void loop() {
         if (message == "on") {
           running = resetStrip();
         }
-        
+
         if (message == "wings") {
           twinkle();
+        }
+
+        if (message.startsWith("fade/")) {
+          String time = message.substring(5);        // get the substring after the /
+          long minutes = time.toFloat();             // convert to a number
+          slowFadeInterval = calcInterval(minutes);  // calculate the interval for slow fade
+        }
+
+        if (message.startsWith("ff/")) {
+          String completion =  message.substring(3);    // get the substring after the /
+          int completionPercent = completion.toFloat(); // convert to a number
+          fastForward(completionPercent);               // fast forward to the right %
         }
       }
     }
@@ -104,6 +116,8 @@ void loop() {
     if (millis() - lastFade >= slowFadeInterval) {
       finished = fadeToRed();
     }
+    // update the strip:
+    strip.show();
   }
 
   // if you reached the end of the long fade, turn off:
@@ -153,9 +167,6 @@ void flickerPixels() {
     // set the pixel color in the strip:
     strip.setPixelColor(thisPixel, pixelColor[thisPixel]);// set the color for this pixel
   }
-
-  // refresh the strip:
-  strip.show();
 }
 
 /*
@@ -165,26 +176,15 @@ boolean fadeToRed() {
   boolean result = true;
   // iterate over all pixels:
   for (int thisColor = 0; thisColor < numColors; thisColor++) {
-    // separate the  color:
-    byte r = keyColors[thisColor] >> 16;
-    byte g = keyColors[thisColor] >>  8;
-    byte b = keyColors[thisColor];
+    // calculate a new keyColor closer to the final color:
+    keyColors[thisColor] = compare(keyColors[thisColor], finalColor);
 
-    // the reddish-orange glow you're aiming for is 0x1F0F02
-    // fade the first color toward the second color:
-    if (r > 0x1F) r--;
-    if (g > 0x0F) g--;
-    if (b > 0x02) b--;
-
-    // combine the values to get the new color:
-    keyColors[thisColor] = ((unsigned long)r << 16) | ((unsigned long)g << 8) | b;
     // if all the keyColors == the final color then you're finished:
-    if (keyColors[thisColor] != 0x1F0F02) {
+    if (keyColors[thisColor] != finalColor) {
       result = false;
     }
   }
   lastFade = millis();
-
   return result;
 }
 
@@ -208,8 +208,6 @@ boolean resetStrip() {
     keyColors[p] = referenceColors[p];
   }
 
-  // update the strip:
-  strip.show();
   return true;
 }
 
@@ -222,8 +220,6 @@ boolean turnOff() {
     strip.show();
     delay(300);
   }
-  // update the strip:
-
   return false;
 }
 
@@ -255,4 +251,65 @@ unsigned long compare(unsigned long thisColor, unsigned long thatColor) {
   // combine the values to get the new color:
   unsigned long result = ((unsigned long)r << 16) | ((unsigned long)g << 8) | b;
   return result;
+}
+
+/*
+  This function calculates the interval for the fadeToRed() steps
+*/
+unsigned long calcInterval(long fadeMinutes) {
+  if (fadeMinutes <= 0) return 0;
+  unsigned long result = 0;
+  long steps = calcFadeSteps();
+
+  // return total fade time / numSteps
+  result = (fadeMinutes * 60 * 1000) / steps;
+  return result;
+}
+
+/*
+  This function calculates the fadeToRed() steps
+*/
+long calcFadeSteps() {
+
+  // separate the final color:
+  byte targetR = finalColor >> 16;
+  byte targetG = finalColor >>  8;
+  byte targetB = finalColor;
+
+  long numSteps = 0;
+  // loop over the reference colors
+  for (int thisColor = 0; thisColor < numColors; thisColor++) {
+    // separate into R, G, B
+    byte r = referenceColors[thisColor] >> 16;
+    byte g = referenceColors[thisColor] >>  8;
+    byte b = referenceColors[thisColor];
+
+    // calculate max of reference color - final color:
+    int redDifference = abs(r - targetR);
+    numSteps = max(redDifference, numSteps);
+    int greenDifference = abs(g - targetG);
+    numSteps = max(greenDifference, numSteps);
+    int blueDifference = abs(b - targetB);
+    numSteps = max(blueDifference, numSteps);
+  }
+  return numSteps;
+}
+
+/*
+  This function fastforwards to a given percentage
+  of completion of the fadeToRed cycle
+*/
+void fastForward(int targetPercent) {
+  if (targetPercent <= 0) return;    // if targetPercent isn't valid, return
+
+  resetStrip();                      // reset the color values
+  long steps = calcFadeSteps();      // calculate how many steps to take
+
+  // calculate how many steps to take:
+  long targetStep = (steps * (100 - targetPercent)) / 100;
+  // step through that many steps:
+  while (steps > targetStep) {
+    fadeToRed();        // fade the colors
+    steps--;            // decrement steps
+  }
 }
