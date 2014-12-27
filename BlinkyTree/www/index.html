@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/p5.js/0.3.14/p5.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/p5.js/0.3.14/addons/p5.dom.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/p5.js/0.3.14/addons/p5.sound.js"></script>
+		<script>
+	var twinkleButton, resetButton, offButton, result, mySound;		
+
+function setup() {
+
+  mySound = loadSound('/tree/Ding-sound-shiny.mp3');
+
+  twinkleButton = createButton('Give an angel its wings');
+  twinkleButton.position(150, 65);
+  twinkleButton.mousePressed(twinkle);
+  
+  resetButton = createButton('reset lights');
+  resetButton.position(150, 95);
+  resetButton.mousePressed(resetStrip);
+  
+  offButton = createButton('turn off lights');
+  offButton.position(150, 125);
+  offButton.mousePressed(turnoff);
+
+  var percentSpan = getElement("percent");
+  percentSpan.position(150, 155);
+  var percentSlider = getElement("percentSlider");
+  percentSlider.mouseReleased(fastForward);
+
+  var fadeTimeSpan = getElement("totalFadeTime");
+   fadeTimeSpan.position(150, 185);
+
+
+}
+
+function twinkle() {
+	result = loadStrings("/mailbox/wings"); 
+	mySound.play(); 
+}
+
+function resetStrip() {
+	result = loadStrings("/mailbox/on"); 
+}
+
+function turnoff() {
+	result = loadStrings("/mailbox/off"); 
+}
+
+function fastForward() {
+	var mySlider = getElement("percentSlider");
+	var myLabel = getElement("percentLabel");
+	myLabel.html(mySlider.value() + "%");
+	result = loadStrings("/mailbox/ff/" + mySlider.value() );
+}
+
+function setFadeTime() {
+	var fadeSpan = getElement("totalFadeTime");
+	var fadeValue = getElement("totalFadeInput").value();
+	result = loadStrings("/mailbox/fade/" + fadeValue );
+}
+
+
+			
+	</script>
+	</head>
+	<body>
+		<span id="percent">
+			Percent finished:
+			<input type="range" id="percentSlider" min="1" max="100" step="1" /	>
+			<label id="percentLabel"></label>
+		</span>
+		<span id="totalFadeTime">Total Fade Time (in minutes): <input type="text" id="totalFadeInput" onchange="setFadeTime();" size="10" /></span>
+	</body>
+</html>
