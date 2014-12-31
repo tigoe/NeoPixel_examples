@@ -5,10 +5,9 @@
 		<script src="//cdnjs.cloudflare.com/ajax/libs/p5.js/0.3.14/addons/p5.dom.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/p5.js/0.3.14/addons/p5.sound.js"></script>
 		<script>
-	var twinkleButton, resetButton, offButton, result, mySound;		
+	var twinkleButton, resetButton, offButton, result, mySound,fadeSlider;		
 
 function setup() {
-
   mySound = loadSound('/tree/Ding-sound-shiny.mp3');
 
   twinkleButton = createButton('Give an angel its wings');
@@ -29,13 +28,13 @@ function setup() {
   percentSlider.mouseReleased(fastForward);
 
   var fadeTimeSpan = getElement("totalFadeTime");
-   fadeTimeSpan.position(150, 185);
-
-
+  fadeTimeSpan.position(150, 185);
+  fadeSlider = getElement("totalFadeSlider");
+  fadeSlider.mouseReleased(setFadeTime);
 }
 
 function twinkle() {
-	result = loadStrings("/mailbox/wings"); 
+	result = loadStrings("/mailbox/twinkle"); 
 	mySound.play(); 
 }
 
@@ -55,13 +54,14 @@ function fastForward() {
 }
 
 function setFadeTime() {
-	var fadeSpan = getElement("totalFadeTime");
-	var fadeValue = getElement("totalFadeInput").value();
-	result = loadStrings("/mailbox/fade/" + fadeValue );
+	var fadeLabel = getElement("totalFadeLabel");
+	var sliderLabel = Math.floor(fadeSlider.value() / 60) + " hours, " 
+		+ Math.floor(fadeSlider.value() % 60) + " minutes";
+	fadeLabel.html(sliderLabel);
+	result = loadStrings("/mailbox/fade/" + fadeSlider.value() );
+
 }
 
-
-			
 	</script>
 	</head>
 	<body>
@@ -70,6 +70,8 @@ function setFadeTime() {
 			<input type="range" id="percentSlider" min="1" max="100" step="1" /	>
 			<label id="percentLabel"></label>
 		</span>
-		<span id="totalFadeTime">Total Fade Time (in minutes): <input type="text" id="totalFadeInput" onchange="setFadeTime();" size="10" /></span>
+		<span id="totalFadeTime">Total Fade Time (in minutes): 
+			<input type="range" id="totalFadeSlider" min="5" max="400" step="5" value="60" /	>
+			<label id="totalFadeLabel"></label>
 	</body>
 </html>
