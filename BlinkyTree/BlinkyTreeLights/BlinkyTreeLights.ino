@@ -37,9 +37,9 @@ int threshold = 1000;                    // touch sensitivity threshold
 int touchDelay = 500;                    // how long to delay before resetting touch sensor
 
 // initial reference color range:
-const unsigned long referenceColors[] = {0xCB5D0F, 0xB4470C, 0x95310C, 0x854E0B};
+unsigned long referenceColors[] = {0xCB5D0F, 0xB4470C, 0x95310C, 0x854E0B};
 // the final color of all pixels before they flicker out:
-const unsigned long finalColor = 0x1F0F02;
+unsigned long finalColor = 0x1F0F02;
 // changing range of keyframe colors for the pixels to flicker to:
 unsigned long keyColors[] = {0xCB500F, 0xB4410C, 0x95230C, 0x853E0B};
 
@@ -92,6 +92,10 @@ void loop() {
       String completion =  message.substring(3);    // get the substring after the /
       int completionPercent = completion.toFloat(); // convert to a number
       fastForward(completionPercent);               // fast forward to the right %
+    }
+
+    if (message == "hny") {
+      happyNewYear();
     }
   }
 
@@ -297,5 +301,57 @@ void fastForward(int targetPercent) {
   while (steps > targetStep) {
     fadeToRed();        // fade the colors
     steps--;            // decrement steps
+  }
+}
+
+/*
+  Added as a surprise effect and triggered with a cron job
+  for New Year's Eve celebration 2014. This was all written hastily
+  and never tested until it ran on New Year's.
+
+*/
+void happyNewYear() {
+  // make all the pixels white:
+  for (int times = 0; times < 5; times++) {
+    // iterate over the pixels:
+    for (int pixel = 0; pixel < numPixels; pixel++) {
+      // set the pixel color:
+      strip.setPixelColor(pixel, 0xFFDDDD);// set the color for this pixel
+      strip.show();
+      delay(300);
+    }
+    // change the reference colors to ones in the blue/purple range:
+    referenceColors[0] = 0xA262E3;
+    referenceColors[1] = 0xB4075C;
+    referenceColors[2] = 0xB03E18;
+    referenceColors[3] = 0xBA1530;
+
+    // Change the final color to blue:
+    finalColor = 0x0407DB;
+
+    // set all the pixels to the new reference colors,
+    // one at a time:
+    for (int pixel = 0; pixel < numPixels; pixel++) {
+      // set the pixel color:
+      int d = random(numColors);
+      unsigned long thisColor = referenceColors[d];
+      strip.setPixelColor(pixel, thisColor);// set the color for this pixel
+      strip.show();
+      delay(300);
+    }
+    // reset the strip:
+    resetStrip();
+    
+    // for 500 times, make a random twinkle; didn't really work
+    int c = 500;
+    while (c > 0) {
+      int pause = random(1000) + 300;
+      if (millis() % pause < 2) {
+        twinkle();
+        c--;
+      }
+      flickerPixels();
+      strip.show();
+    }
   }
 }
