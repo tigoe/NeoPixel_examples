@@ -11,7 +11,7 @@ const int neoPixelPin = 6;  // control pin
 const int numPixels = 8;    // number of pixels
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_RGB + NEO_KHZ800);
 
 // changing range of keyframe colors for the pixels to flicker to,
 // in RGB hex:
@@ -28,7 +28,7 @@ int flickerInterval = 100;     // in millis, the delay between flicker steps
 void setup()  {
   strip.begin();                          // initialize pixel strip
   for (int pixel = 0; pixel < numPixels; pixel++) {
-    strip.setPixelColor(pixel, 0, 0, 0);  // turn off pixel
+    strip.clear();  // turn off pixel
   }
   strip.show();                         // refresh the strip
 }
