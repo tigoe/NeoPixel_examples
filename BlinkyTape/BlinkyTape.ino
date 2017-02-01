@@ -22,7 +22,7 @@
 #define PIN 5
 const int numPixels = 7;
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, PIN, NEO_RGBW + NEO_KHZ800);
 
 int pixel = 0;            // pixel number that you're changing
 int red = 0;              // red value
@@ -50,11 +50,11 @@ void loop() {
     for (int pixel = 0; pixel < numPixels; pixel++); {
       strip.setPixelColor(pixel, red, green, blue, 0);// set the color for this pixel
     }
-  strip.show();                                // refresh the strip
+    strip.show();                                // refresh the strip
 
-delay(10);
+    delay(10);
   }
- 
+
 }
 
 
