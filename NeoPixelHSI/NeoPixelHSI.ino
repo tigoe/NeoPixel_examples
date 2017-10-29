@@ -21,10 +21,10 @@
 #include "HSI.h"
 
 const int neoPixelPin = 5;  // control pin
-const int numPixels = 7;    // number of pixels
+const int pixelCount = 7;    // number of pixels
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRBW + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
 
 void setup() {
   strip.begin();        // initialize pixel strip
@@ -46,14 +46,14 @@ void loop() {
       Serial.print("%,");
       Serial.print(i);
       Serial.println("%");
-      // convert the values to RGBW:
-      unsigned long color = hsiToRgb(h, s, i);
-      Serial.print("RGB: 0x");
-      //      unsigned long color = hsiToRgbw(h, s, i);   // use these lines for RGBW
-      //      Serial.print("RGBW: 0x");
+      // convert the values to RGB:
+      //      unsigned long color = hsiToRgb(h, s, i);
+      //      Serial.print("RGB: 0x");
+      unsigned long color = hsiToRgbw(h, s, i);   // use these lines for RGBW
+      Serial.print("RGBW: 0x");
       Serial.println(color);
       // loop over all the pixels:
-      for (int pixel = 0; pixel < numPixels; pixel++) {
+      for (int pixel = 0; pixel < pixelCount; pixel++) {
         strip.setPixelColor(pixel, color);    // set the color for this pixel
       }
       strip.show();   // update the strip
