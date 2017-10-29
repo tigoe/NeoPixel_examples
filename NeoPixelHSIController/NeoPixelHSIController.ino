@@ -1,6 +1,6 @@
 /*
-  RGBW NeoPixel HSI-to-RGB conversion and fade
-
+  RGBW NeoPixel HSI controller
+  
   This sketch changes of a neoPixel device based on three potentiometers, 
   one for hue, one for saturation,and one for intensity
 
