@@ -18,6 +18,7 @@
 
 */
 #include <Adafruit_NeoPixel.h>
+#include "HSI.h"
 
 const int neoPixelPin = 5;  // control pin
 const int numPixels = 7;    // number of pixels
@@ -31,7 +32,6 @@ void setup() {
   strip.show();         // update strip
   Serial.begin(9600);   // initialize serial
   Serial.setTimeout(10);// timeout for Serial.parseInt() function
-
 }
 
 void loop() {
