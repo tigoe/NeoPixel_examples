@@ -7,11 +7,11 @@
 */
 #include <Adafruit_NeoPixel.h>
 
-const int neoPixelPin = 6;  // control pin
-const int numPixels = 8;    // number of pixels
+const int neoPixelPin = 5;  // control pin
+const int numPixels = 7;    // number of pixels
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRBW + NEO_KHZ800);
 
 // count of keyframe colors:
 int thisPixel = 0;

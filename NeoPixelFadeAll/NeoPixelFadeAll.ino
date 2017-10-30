@@ -11,11 +11,11 @@
 */
 #include <Adafruit_NeoPixel.h>
 
-const int pinNumber = 6;    // Pin number of the DIN line to the neoPixels
-const int pixelCount = 8;   // number of pixels
+const int pinNumber = 5;    // Pin number of the DIN line to the neoPixels
+const int pixelCount = 7;   // number of pixels
 
 // declare the strip of pixels:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, pinNumber, NEO_RGB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, pinNumber, NEO_RGBW + NEO_KHZ800);
 
 void setup() {
   strip.begin();    // initialize pixel strip

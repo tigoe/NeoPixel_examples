@@ -8,15 +8,15 @@
 */
 #include <Adafruit_NeoPixel.h>
 
-const int neoPixelPin = 6;  // control pin
-const int numPixels = 8;    // number of pixels
+const int neoPixelPin = 5;  // control pin
+const int pixelCount = 7;    // number of pixels
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
 
-unsigned long trailColor[numPixels];  // array of colors for the trail
+unsigned long trailColor[pixelCount];  // array of colors for the trail
 int currentPixel = 0;                 // the current pixel
-int trailingPixel = numPixels;        // the final trailing pixel
+int trailingPixel = pixelCount;        // the final trailing pixel
 int trailDirection = 1;               // direction of the trail
 
 void setup()  {
@@ -26,7 +26,7 @@ void setup()  {
   trailColor[2] = 0x000055;
   trailColor[3] = 0x000022;
   // fill the rest with zeroes:
-  for (int p = 4; p < numPixels; p++) {
+  for (int p = 4; p < pixelCount; p++) {
     trailColor[p] = 0;
   }
 
@@ -41,7 +41,7 @@ void loop() {
 
   // if the current pixel is at either end of the strip,
   // reverse the direction of counting:
-  if (currentPixel < 0 || currentPixel >= numPixels) {
+  if (currentPixel < 0 || currentPixel >= pixelCount) {
     trailDirection = -trailDirection;
   }
 
@@ -52,7 +52,7 @@ void loop() {
   trailingPixel = currentPixel;
 
   // while the trailing pixel number is still in range:
-  while (trailingPixel < numPixels && trailingPixel >= 0) {
+  while (trailingPixel < pixelCount && trailingPixel >= 0) {
     // color number is the distance from current pixel in either direction:
     int colorNum = abs(currentPixel - trailingPixel);
     // set the color:

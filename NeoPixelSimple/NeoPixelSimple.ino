@@ -1,7 +1,7 @@
 /*
   Simple NeoPixel control
 
-  This sketch allows serial control over RGB NeoPixels.
+  This sketch allows serial control over RGBW NeoPixels.
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
@@ -15,7 +15,7 @@ const int neoPixelPin = 6;  // control pin
 const int numPixels = 8;    // number of pixels
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_RGB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRBW + NEO_KHZ800);
 
 void setup() {
   strip.begin();    // initialize pixel strip
@@ -31,7 +31,7 @@ void loop() {
   
   // loop over all the pixels:
   for (int pixel = 0; pixel < numPixels; pixel++) {
-    strip.setPixelColor(pixel, red, green, blue);// set the color for this pixel
+    strip.setPixelColor(pixel, red, green, blue, white);// set the color for this pixel
   }
   strip.show();                                // refresh the strip
 }
