@@ -11,8 +11,8 @@
 */
 #include <Adafruit_NeoPixel.h>
 
-const int neoPixelPin = 6;  // control pin
-const int numPixels = 8;    // number of pixels
+const int neoPixelPin = 5;  // control pin
+const int numPixels = 7;    // number of pixels
 
 // set up strip:
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRBW + NEO_KHZ800);
@@ -24,14 +24,16 @@ void setup() {
 }
 
 void loop() {
-  int red = 12;   // set colors
-  int green = 45;
-  int blue = 255;
+  int red = 0xFF;   // set colors
+  int green = 0x0;
+  int blue = 0x00;
+  int white = 0x10;
 
-  
   // loop over all the pixels:
   for (int pixel = 0; pixel < numPixels; pixel++) {
-    strip.setPixelColor(pixel, red, green, blue, white);// set the color for this pixel
+    unsigned long color = 0x1200FF00;
+  //  strip.setPixelColor(pixel, red, green, blue, white);// set the color for this pixel
+     strip.setPixelColor(pixel, color);// set the color for this pixel
   }
   strip.show();                                // refresh the strip
 }

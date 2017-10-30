@@ -21,6 +21,7 @@ void setup() {
   strip.begin();    // initialize pixel strip
   strip.clear();    // turn all LEDs off
   strip.show();     // update strip
+  Serial.begin(9600);
 }
 
 void loop() {
@@ -32,11 +33,19 @@ void loop() {
   delay(1);
   int white = analogRead(A3) / 4;
 
+  Serial.print(red, HEX);
+  Serial.print(",");
+  Serial.print(green, HEX);
+  Serial.print(",");
+  Serial.print(blue, HEX);
+  Serial.print(",");
+  Serial.println(white, HEX);
+
+
   // loop over all the pixels:
   for (int pixel = 0; pixel < pixelCount; pixel++) {
     strip.setPixelColor(pixel, red, green, blue, white);    // set the color for this pixel
     strip.show();   // update the strip
-    delay(100);
   }
 }
 

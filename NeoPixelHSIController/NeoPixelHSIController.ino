@@ -1,7 +1,7 @@
 /*
   RGBW NeoPixel HSI controller
-  
-  This sketch changes of a neoPixel device based on three potentiometers, 
+
+  This sketch changes of a neoPixel device based on three potentiometers,
   one for hue, one for saturation,and one for intensity
 
   It converts HSI values to a single RGB color and sets a neoPixel string
@@ -31,16 +31,16 @@ void setup() {
 }
 
 void loop() {
- int sensor1 = analogRead(A0);  // read potentiometers
- delay(1);                      // delay to stabilize ADC
- int sensor2 = analogRead(A1);
- delay(1);
- int sensor3 = analogRead(A2);
+  int sensor1 = analogRead(A0);  // read potentiometers
+  delay(1);                      // delay to stabilize ADC
+  int sensor2 = analogRead(A1);
+  delay(1);
+  int sensor3 = analogRead(A2);
 
- int h = map(sensor1, 0, 1023, 0, 360);   // convert to hue
- int s = map(sensor2, 0, 1023, 0, 100);   // convert to saturation
- int i = map(sensor3, 0, 1023, 0, 100);   // convert to intensity
- 
+  int h = map(sensor1, 0, 1023, 0, 360);   // convert to hue
+  int s = map(sensor2, 0, 1023, 0, 100);   // convert to saturation
+  int i = map(sensor3, 0, 1023, 0, 100);   // convert to intensity
+
   // create a single color from hue, sat, intensity:
   unsigned long color = hsiToRgbw(h, s, i);
 
@@ -48,7 +48,7 @@ void loop() {
   for (int pixel = 0; pixel < pixelCount; pixel++) {
     strip.setPixelColor(pixel, color);    // set the color for this pixel
     strip.show();   // update the strip
-    delay(100);  
+    delay(100);
   }
 }
 
