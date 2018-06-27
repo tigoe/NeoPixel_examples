@@ -8,23 +8,22 @@
   It converts these values to a single RGBW color and sets a neoPixel string
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
-
-  Based on HSI conversion from Saiko LED, by Brian Neitner:
-  http://blog.saikoled.com/post/44677718712/how-to-convert-from-hsi-to-rgb-white
-  http://blog.saikoled.com/post/43693602826/why-every-led-light-should-be-using-hsi
+  Uses ColorConverter library: https://github.com/tigoe/ColorConverter
 
   created 31 Jan 2017
+  modified 27 June 2017
   by Tom Igoe
 
 */
 #include <Adafruit_NeoPixel.h>
-#include "HSI.h"
+#include <ColorConverter.h>
 
 const int neoPixelPin = 5;  // control pin
 const int pixelCount = 7;    // number of pixels
 
 // set up strip:
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
+ColorConverter converter;
 
 void setup() {
   strip.begin();        // initialize pixel strip
@@ -46,15 +45,17 @@ void loop() {
       Serial.print("%,");
       Serial.print(i);
       Serial.println("%");
-      // convert the values to RGB:
-      //      unsigned long color = hsiToRgb(h, s, i);
-      //      Serial.print("RGB: 0x");
-      unsigned long color = hsiToRgbw(h, s, i);   // use these lines for RGBW
+      // convert the values to RGBW:
+      RGBColor color = converter.HSItoRGBW(h, s, i);
       Serial.print("RGBW: 0x");
-      Serial.println(color);
+      Serial.println(color.red, HEX);
+      Serial.print(color.green, HEX);
+      Serial.print(color.blue, HEX);
+      Serial.println(color.white, HEX);
+      
       // loop over all the pixels:
       for (int pixel = 0; pixel < pixelCount; pixel++) {
-        strip.setPixelColor(pixel, color);    // set the color for this pixel
+        strip.setPixelColor(pixel, color.red, color.green, color.blue, color.white);    // set the color for this pixel
       }
       strip.show();   // update the strip
     }

@@ -6,27 +6,25 @@
   It converts HSI values to a single RGB color and sets a neoPixel string
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
-
-  Based on HSI conversion from Saiko LED, by Brian Neitner:
-  http://blog.saikoled.com/post/44677718712/how-to-convert-from-hsi-to-rgb-white
-  http://blog.saikoled.com/post/43693602826/why-every-led-light-should-be-using-hsi
+  Uses ColorConverter library: https://github.com/tigoe/ColorConverter
 
   created 31 Jan 2017
-  modified 29 Oct 2017
+  modified 27 Jun 2018
   by Tom Igoe
 
 */
 #include <Adafruit_NeoPixel.h>
-#include "HSI.h"
+#include <ColorConverter.h>
 
 const int neoPixelPin = 5;   // control pin
-const int pixelCount = 7;    // number of pixels
+const int pixelCount = 8;    // number of pixels
 int change = 1;              // increment to change hue by
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRB + NEO_KHZ800);
+ColorConverter converter;
 
-int h = 0;          // hue
+int h = 10;         // hue
 int s = 100;        // saturation
 int i = 100;        // intensity
 
@@ -38,11 +36,11 @@ void setup() {
 
 void loop() {
   // create a single color from hue, sat, intensity:
-  unsigned long color = hsiToRgbw(h, s, i);
+  RGBColor color = converter.HSItoRGB(h, s, i);
 
   // loop over all the pixels:
   for (int pixel = 0; pixel < pixelCount; pixel++) {
-    strip.setPixelColor(pixel, color);    // set the color for this pixel
+    strip.setPixelColor(pixel, color.red, color.green, color.blue);    // set the color for this pixel
     strip.show();   // update the strip
     delay(100);
   }
