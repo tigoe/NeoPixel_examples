@@ -1,8 +1,6 @@
 /*
   Simple NeoPixel control
-
   This sketch allows serial control over RGBW NeoPixels.
-
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
   created 28 March 2016
