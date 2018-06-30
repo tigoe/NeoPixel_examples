@@ -28,7 +28,7 @@ void loop() {
   // loop over all the pixels:
   for (int pixel = 0; pixel < pixelCount; pixel++) {
     strip.setPixelColor(pixel, red, green, blue);// set the color for this pixel
-    delay(50);
+    delay(250);
     strip.show();    // refresh the strip
   }
   delay(1000);

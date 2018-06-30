@@ -42,7 +42,7 @@ void loop() {
   for (int pixel = 0; pixel < pixelCount; pixel++) {
     strip.setPixelColor(pixel, color.red, color.green, color.blue);    // set the color for this pixel
     strip.show();   // update the strip
-    delay(100);
+    delay(50);
   }
 
   // increment hue to fade from red (0) to reddish orange (15) and back:
