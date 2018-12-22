@@ -1,0 +1,9 @@
+# sample crontab for the tree:
+
+15 6 * * * curl 'http://localhost/mailbox/on' # at 6:15 AM, turn on
+30 8 * * * curl 'http://localhost/mailbox/off' # at 8:30 AM, turn off
+45 16 * * * curl 'http://localhost/mailbox/on' # at 4:45 PM, turn on
+0 23 * * * curl 'http://localhost/mailbox/off' # at 11 PM, turn off
+* 30 * * * curl 'http://localhost/mailbox/on'  # every hour on the half, reshuffle the lights
+
+# I also added tabs for leaving the tree on on weekend days, not included here. 
