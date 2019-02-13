@@ -12,8 +12,8 @@
 #include <Adafruit_NeoPixel.h>
 #include <ColorConverter.h>
 
-const int neoPixelPin = 6;
-const int pixelCount = 8;    // number of pixels
+const int neoPixelPin = 5;
+const int pixelCount = 20;    // number of pixels
 
 // set up strip. Note BRG setting. You might have to experiment
 // to determine which way your LEDs are wired:
@@ -38,7 +38,7 @@ void loop() {
   // warm to cool and back:
   int mix = map(sensorReading, 0, 1023, 0, 240);
   // create a single color from hue, sat, intensity:
-  RGBColor color = converter.HSItoRGB(h, s, i);
+  RGBColor color = converter.HSItoRGB(mix, s, i);
 
   // change the ColorConverter labels to something you can use:
   int amber = color.red;
