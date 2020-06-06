@@ -6,7 +6,7 @@ const int pixelCount = 7;    // number of pixels
 int change = 1;              // increment to change hue by
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRB + NEO_KHZ800);
 ColorConverter converter;
 
 int h = 10;         // hue
@@ -35,4 +35,7 @@ void loop() {
   if (h < 0 || h > 15) {
     change = -change;
   }
+
+
+  
 }
