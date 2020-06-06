@@ -1,3 +1,8 @@
 
 BlinkyTree/.DS_Store
 .DS_Store
+BlinkyTree/.vscode/arduino.json
+BlinkyTree/.vscode/c_cpp_properties.json
+BlinkyTree/TreeLights2019/arduino_secrets.h
+BlinkyTree/TreeLights2019/TreeLights2019.arduino.samd.nano_33_iot.bin
+BlinkyTree/TreeLights2019/TreeLights2019.arduino.samd.nano_33_iot.elf
