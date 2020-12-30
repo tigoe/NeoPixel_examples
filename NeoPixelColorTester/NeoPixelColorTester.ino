@@ -12,12 +12,12 @@
 */
 #include <Adafruit_NeoPixel.h>
 
-const int neoPixelPin = 7;  // control pin
-const int numPixels = 100;    // number of pixels
+const int neoPixelPin = 5;  // control pin
+const int numPixels = 7;    // number of pixels
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);
-unsigned long color = 0xFFFFFF;   // start with blue
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRBW + NEO_KHZ800);
+unsigned long color = 0xFF;   // start with blue
 
 void setup() {
   strip.begin();    // initialize pixel strip
@@ -37,7 +37,7 @@ void loop() {
     delay(500);
   }
   color = color << 8;         // shift the FF (255) to the next color
-  if (color > 0xFF000000) {   // if the color is greater than white (0xFF000000)
+  if (color >= 0xFF000000) {   // if the color is greater than white (0xFF000000)
     color = 0xFF;             // then set it back to blue
   }
   strip.clear();              // clear the strip at the end of a color
