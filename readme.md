@@ -40,4 +40,4 @@ The `NEO_RGBW` sets the order for the control of colors. it varies from manufact
 
 [NeoPixelRGBController](https://github.com/tigoe/NeoPixel_examples/tree/main/[NeoPixelRGBController) takes input from three potentiometers to control a stip in red, green, and blue values.
 
-[WWANeoPixel]((https://github.com/tigoe/NeoPixel_examples/tree/main/WWANeoPixel) controls a strip of white, white, amber LEDs using my [ColorConverter](https://github.com/tigoe/ColorConverter) library
+[WWANeoPixel](https://github.com/tigoe/NeoPixel_examples/tree/main/WWANeoPixel) controls a strip of white, white, amber LEDs using my [ColorConverter](https://github.com/tigoe/ColorConverter) library
