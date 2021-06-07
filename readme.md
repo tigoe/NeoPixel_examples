@@ -1,6 +1,6 @@
 # NeoPixel Examples
 
-This repository includes examples for controlling WS218x and SK681x addressable LEDs using Adafruit's NeoPixel library. 
+This repository includes examples for controlling WS218x and SK681x addressable LEDs using Adafruit's [NeoPixel]() library. 
 
 Addressable LEDs come in many forms, but the most common is a flexible strip, so you'll often see a device listed as `strip` in code examples. These will test a string, ring, or whatever form you have). 
 
@@ -32,8 +32,9 @@ The `NEO_RGBW` sets the order for the control of colors. it varies from manufact
 
 [NeoPixelFadeChase](https://github.com/tigoe/NeoPixel_examples/tree/main/NeoPixelFadeChase) - This sketch shows how to a chase with a fading trail of LEDs behind the brightest one. 
 
-[NeoPixelHSI](https://github.com/tigoe/NeoPixel_examples/tree/main/NeoPixelHSI) uses my [ColorConverter](https://github.com/tigoe/ColorConverter) library to take serial input in Hue, Saturation and Intensity (HSI) colorspace values.
+[NeoPixelSimpleHSV](https://github.com/tigoe/NeoPixel_examples/tree/main/NeoPixelSimpleHSV) - fades through the hue, saturation, value colorspace, keeping saturation and value constant, using the `ColorHSV()` conversion command from the NeoPixel library. 
 
+[NeoPixelHSI](https://github.com/tigoe/NeoPixel_examples/tree/main/NeoPixelHSI) uses my [ColorConverter](https://github.com/tigoe/ColorConverter) library to take serial input in Hue, Saturation and Intensity (HSI) colorspace values.
 
 [NeoPixelHSIController](https://github.com/tigoe/NeoPixel_examples/tree/main/NeoPixelHSIController) uses my [ColorConverter](https://github.com/tigoe/ColorConverter) library to take input from three potentiometers to control a strip in Hue, Saturation and Intensity (HSI) colorspace values.
 
@@ -41,3 +42,6 @@ The `NEO_RGBW` sets the order for the control of colors. it varies from manufact
 [NeoPixelRGBController](https://github.com/tigoe/NeoPixel_examples/tree/main/NeoPixelRGBController) takes input from three potentiometers to control a stip in red, green, and blue values.
 
 [WWANeoPixel](https://github.com/tigoe/NeoPixel_examples/tree/main/WWANeoPixel) controls a strip of white, white, amber LEDs using my [ColorConverter](https://github.com/tigoe/ColorConverter) library
+
+
+[NeoPixelSimpleGamma](https://github.com/tigoe/NeoPixel_examples/tree/main/NeoPixelSimpleGamma) - Shows how to use NeoPixel library `gamma32()` command. Blinks between the uncorrected and corrected version of a color.
