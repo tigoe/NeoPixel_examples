@@ -1,26 +1,31 @@
 /*
   Simple NeoPixel control
 
-  This sketch allows serial control over RGBW NeoPixels.
+  This sketch allows serial control over RGBW NeoPixels. It shows how to control
+  them using a single long integer, written as a hexadecimal string, like 
+  web colors, (e.g. 00FF0000 is red) 
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
   created 28 Oct 2017
+  updated 7 Jun 2021
   by Tom Igoe
 
 */
 #include <Adafruit_NeoPixel.h>
 
-const int neoPixelPin = 6;  // control pin
-const int pixelCount = 8;    // number of pixels
+const int neoPixelPin = 5;  // control pin
+const int pixelCount = 7;    // number of pixels
 
 // set up strip:
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
 
 void setup() {
+  Serial.begin(9600);
+  Serial.setTimeout(10);
   strip.begin();    // initialize pixel strip
   strip.clear();    // turn all LEDs off
-  strip.show();     // Initialize all pixels to 'off'
+  strip.show();     // Initialize all pixels
 }
 
 void loop() {
@@ -31,20 +36,19 @@ void loop() {
     0x0000FF00 is green
     0x000000FF is blue
 
-    Other colors are made by combining, e.g. 
+    Other colors are made by combining, e.g.
     0x000077FF is teal
     0x003300FF is violet
-    
-
   */
-  unsigned long color = 0x00FF0000;
 
+  unsigned long color = 0x00FF0000;
+  // print the color in hex so you know what you're seeing:
+  Serial.println(color, HEX);
 
   // loop over all the pixels:
   for (int pixel = 0; pixel < pixelCount; pixel++) {
     strip.setPixelColor(pixel, color);// set the color for this pixel
   }
   strip.show();                                // refresh the strip
+
 }
-
-

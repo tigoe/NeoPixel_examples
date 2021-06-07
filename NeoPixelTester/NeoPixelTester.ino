@@ -6,8 +6,9 @@
   blue, green, red, white
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
-  
+
   created 31 Jan 2017
+  updated 7 Jun 2021
   by Tom Igoe
 */
 #include <Adafruit_NeoPixel.h>
@@ -34,12 +35,14 @@ void loop() {
       strip.setPixelColor(pixel - 1, 0); // turn off the last pixel
     }
     strip.show();    // refresh the strip
-    delay(500);
+    delay(50);
   }
-  color = color << 8;         // shift the FF (255) to the next color
-  if (color > 0xFF000000) {   // if the color is greater than white (0xFF000000)
-    color = 0xFF;             // then set it back to blue
-  }
-  strip.clear();              // clear the strip at the end of a color
-}
+  delay(1000);       // wait 1 sec before next color run.
 
+  if (color == 0xFF000000) { // if the color is white (0xFF000000)
+    color = 0xFF;            // then set it back to blue
+  } else {
+    color = color << 8;      // shift the lit color (value FF, or 255) to the next color
+  }
+  strip.clear();             // clear the strip at the end of a color run
+}
