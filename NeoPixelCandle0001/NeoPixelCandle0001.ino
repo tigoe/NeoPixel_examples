@@ -1,41 +1,39 @@
 #include <Adafruit_NeoPixel.h>
-#include <ColorConverter.h>
 
-const int neoPixelPin = 5;   // control pin
-const int pixelCount = 7;    // number of pixels
-int change = 1;              // increment to change hue by
+const int neoPixelPin = 5;  // control pin
+const int pixelCount = 7;   // number of pixels
+int change = 100;             // increment to change hue by
 
 // set up strip:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRB + NEO_KHZ800);
-ColorConverter converter;
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
 
-int h = 10;         // hue
-int s = 100;        // saturation
-int i = 100;        // intensity
+int h = 1000;  // hue, 0-65535
+int s = 255;  // saturation 0-255
+int i = 255;  // intensity 0-255
 
 void setup() {
-  strip.begin();    // initialize pixel strip
-  strip.clear();    // turn all LEDs off
-  strip.show();     // update strip
+  strip.begin();  // initialize pixel strip
+  strip.clear();  // turn all LEDs off
+  strip.show();   // update strip
 }
 
 void loop() {
   // create a single color from hue, sat, intensity:
-  RGBColor color = converter.HSItoRGB(h, s, i);
+  long color = strip.ColorHSV(h, s, i);
 
   // loop over all the pixels:
   for (int pixel = 0; pixel < pixelCount; pixel++) {
-    strip.setPixelColor(pixel, color.red, color.green, color.blue);    // set the color for this pixel
-    strip.show();   // update the strip
+    strip.setPixelColor(pixel, color);
+    strip.show();  // update the strip
     delay(100);
   }
 
-  // increment hue to fade from red (0) to reddish orange (15) and back:
+  // increment hue to fade from red (0) to reddish orange (2400) and back:
   h = h + change;
-  if (h < 0 || h > 15) {
+  // when it hits the boundaries, reverse the direction of change:
+  if (h <= 0 || h >= 2400) {
     change = -change;
   }
-
-
-  
+  // constrin hue to 0-2400:
+  h = constrain(h, 0, 2400);
 }
