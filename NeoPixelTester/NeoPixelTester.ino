@@ -17,9 +17,9 @@ const int neoPixelPin = 5;  // control pin
 const int numPixels = 7;    // number of pixels
 
 // set up strip:
- // note: if you are using RGB instead of RGBW pixels, use NEO_RGB instead of NEO_RGBW:
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_RGBW + NEO_KHZ800);
-unsigned long color = 0xFFFFFF;   // start with blue
+ // note: if you are using RGB instead of RGBW pixels, use NEO_GRB instead of NEO_GRBW:
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRBW + NEO_KHZ800);
+unsigned long color = 0xFF;   // start with blue
 
 void setup() {
   strip.begin();    // initialize pixel strip
@@ -36,6 +36,7 @@ void loop() {
     if (pixel > 0) {
       strip.setPixelColor(pixel - 1, 0); // turn off the last pixel
     }
+    Serial.println(color, HEX);
     strip.show();    // refresh the strip
     delay(500);
   }
