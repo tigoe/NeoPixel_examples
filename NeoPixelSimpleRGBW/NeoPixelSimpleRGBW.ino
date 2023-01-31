@@ -21,9 +21,9 @@ void setup() {
 }
 
 void loop() {
-  byte red = 255;   // set colors
+  byte red = 23;   // set colors
   byte green = 0;
-  byte blue = 0;
+  byte blue = 255;
   byte white = 0;
 
   // loop over all the pixels:
