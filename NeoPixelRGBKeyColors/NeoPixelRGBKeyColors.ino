@@ -12,7 +12,6 @@
 */
 
 #include <Adafruit_NeoPixel.h>
-#include <Interval.h>
 
 const int neoPixelPin = 5;
 const int pixelCount = 7;
@@ -27,18 +26,20 @@ unsigned long pixelColor[pixelCount];     // current color for each pixel
 
 // count of keyframe colors:
 int numColors = sizeof(keyColors) / 4;
-// interval for flickering:
-Interval flickerInterval;
+int interval = 30;
+int lastFlicker = 0;
 
 void setup()  {
   strip.begin();  // initialize pixel strip
   strip.clear();  // turn off pixel
   strip.show();   // refresh the strip
-  flickerInterval.setInterval(flickerPixels, 30);
 }
 
 void loop() {
-  flickerInterval.check();
+if (millis() - lastFlicker > interval) {
+  flickerPixels();
+  lastFlicker = millis();
+}
    // update the strip:
   strip.show();
 }
@@ -91,4 +92,3 @@ unsigned long compare(unsigned long thisColor, unsigned long thatColor) {
   unsigned long result = ((unsigned long)r << 16) | ((unsigned long)g << 8) | b;
   return result;
 }
-
