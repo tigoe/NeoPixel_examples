@@ -8,6 +8,7 @@
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
   created 7 Jun 2021
+  modified 31 Jan 2023
   by Tom Igoe
 
 */
@@ -16,10 +17,12 @@
 const int neoPixelPin = 5;  // control pin
 const int pixelCount = 7;    // number of pixels
 
-unsigned long hue = 0;
+unsigned long hue = 18000;
 unsigned long color = 0;
 int sat = 255;
 int val = 255;
+int hChange = 10;
+
 // set up strip:
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
 
@@ -48,8 +51,16 @@ void loop() {
   }
   strip.show();                       // refresh the strip
 
+  hue += hChange;
+  // keep it in a range from blue to green:
+  if (hue > 32767 || hue < 18000) {
+    hChange = -hChange;
+  }
   // add 10 to the hue and delay a little bit:
-  hue += 10;
-  delay(50);
-
+  if (hue > 32767) {
+    hue = 18000;
+  } else {
+    hue += 10;
+  }
+  delay(5);
 }
