@@ -2,8 +2,8 @@
   Simple NeoPixel control
 
   This sketch allows serial control over RGBW NeoPixels. It shows how to control
-  them using a single long integer, written as a hexadecimal string, like 
-  web colors, (e.g. 00FF0000 is red) 
+  them using a single long integer, written as a hexadecimal string, like
+  web colors, (e.g. 00FF0000 is red)
 
   Uses Adafruit's NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
 
@@ -28,6 +28,7 @@ void setup() {
   strip.show();     // Initialize all pixels
 }
 
+unsigned long color = 0x0000FF00;
 void loop() {
   /*
     Each byte of the color is a hue, in the sequence WWRRGGBB.
@@ -41,7 +42,8 @@ void loop() {
     0x003300FF is violet
   */
 
-  unsigned long color = 0x00FF0000;
+
+
   // print the color in hex so you know what you're seeing:
   Serial.println(color, HEX);
 
@@ -50,5 +52,10 @@ void loop() {
     strip.setPixelColor(pixel, color);// set the color for this pixel
   }
   strip.show();                                // refresh the strip
-
+  delay(1000);
+  if (color >= 0xFF000000) {
+    color = 0xFF;
+  } else {
+    color = color << 8;
+  }
 }
