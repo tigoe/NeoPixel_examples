@@ -2,14 +2,16 @@
 /*
   This sketch makes neoPixels chase, with a fading trail.
   The trail changes directions with the chasing pixel.
-  
+
   created 28 March 2016
+  modified 31 Jan 2023
   by Tom Igoe
 */
 #include <Adafruit_NeoPixel.h>
 
 const int neoPixelPin = 5;  // control pin
-const int pixelCount = 7;    // number of pixels
+const int pixelCount = 144;    // number of pixels
+const int trailLength = pixelCount/10;  // length of the fading trail
 
 // set up strip:
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, neoPixelPin, NEO_GRBW + NEO_KHZ800);
@@ -21,15 +23,26 @@ int trailDirection = 1;               // direction of the trail
 
 void setup()  {
   // set the trail colors:
-  trailColor[0] = 0x0000FF;
-  trailColor[1] = 0x000099;
-  trailColor[2] = 0x000055;
-  trailColor[3] = 0x000022;
+  Serial.begin(9600);
+  if (!Serial) delay(3000);
+  for (int p = 0; p < trailLength; p++) {
+
+    trailColor[p] = (p * 255) / 8 ;
+    Serial.println(trailColor[p]);
+  }
+  Serial.println(" " );
+  for (int p = 9; p < 12; p++) {
+    trailColor[p] = 255 / (p -8);
+    Serial.println(trailColor[p]);
+  }
+  Serial.println(" " );
   // fill the rest with zeroes:
-  for (int p = 4; p < pixelCount; p++) {
+  for (int p = 12; p < pixelCount; p++) {
     trailColor[p] = 0;
+  //  Serial.println(trailColor[p]);
   }
 
+  //while (true);
   strip.begin();  // initialize pixel strip
   strip.clear();  // turn off pixels
   strip.show();   // refresh the strip
@@ -66,4 +79,3 @@ void loop() {
   // delay 0.1 seconds:
   delay(100);
 }
-
